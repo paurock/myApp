@@ -95,13 +95,14 @@ class App extends Component {
 		let { menu } = this.state
 		let item		
 		
-		const  checkShowing = (item) => console.log(item, "Works")
+		const  checkShowing = (item) => ({...item, "hello": "Works"})
 		
 		const checkLimitLevel = (checkShowing, item) => (true) ? checkShowing (item) : console.log("else")
 		
-		menu = menu.map( item => console.log(item) )
+		menu = menu.map( item => checkLimitLevel(checkShowing, item) )
 		
 	this.setState({menu})
+	console.log(menu)
 	}	
 		
 		
