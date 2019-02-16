@@ -22,12 +22,14 @@
 const { Component } = React
 const { render } = ReactDOM
 
+const limitLevel = -2
+
 /////////////Function that shows Menu//////////////////////
 
-const MenuItem = ({title, id, level, show, parent, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(id, level, parent)}>{title}</div>
+const MenuItem = ({title, id, level, show, parentItem, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(title, id, level, parentItem)}>{title}</div>
 
 const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
-	<MenuItem key={menuItem.id} {...menuItem} onClick={(id, level, parent)=> onClick(id, level, parent)}/>
+	<MenuItem key={menuItem.id} {...menuItem} onClick={(title, id, level, parentItem)=> onClick(title, id, level, parentItem)}/>
 )}
 </div>
 
@@ -41,74 +43,82 @@ class App extends Component {
 				"title": "Material", 
 				"level": 0,
 				"id": uuid.v4(),
-				"parent":"material",
+				"parentItem":"Material",
 				"show": true, 
 			}, 
 			{
 				"title": "Spiritual", 
 				"level": 0,
 				"id": uuid.v4(),
-				"parent":"spiritual",
+				"parentItem":"Sprirtual",
 				"show": true 				
 			}, 
 			{
 				"title": "Career", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parent":"material",
+				"parentItem":"Material",
 				"show": false,				 
 			}, 
 			{
 				"title": "Private Life", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parent":"material",
+				"parentItem":"Material",
 				"show": false,				
 			},
 			{
 				"title": "Education", 
 				"level": -2,
 				"id": uuid.v4(),
-				"parent":"career",
+				"parentItem":"Career",
 				"show": false,				 
 			}, 
 			{
 				"title": "Work", 
 				"level": -2,
 				"id": uuid.v4(),
-				"parent":"career",
+				"parentItem":"Career",
 				"show": false,				 
 			},
 			{
 				"title": "Creativity", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parent":"spiritual",
+				"parentItem":"Spiritual",
 				"show": false,				 
 			}, 
 		]
 	}
-	
-	
-onClick = (id, level, parent) => {
-	console.log(parent)
-	const menu = this.state.menu.map(item => 
-	(item.level == (level-1) && item.parent == parent) ? 
-	 {...item, "show": true} :
-	  {...item, "show": false}
+/*After a click Fn shows every Item that one level deeper and have a common parent */	
+	onClick = (title, id, level, parentItem) => {	
+		let { menu } = this.state
+		menu = menu.map( item => 
+			(item.level > limitLevel) ? 
+				if (item.level <= level && item.parentItem == title) {	
+					return {...item, "show": true, "hello":"it's me"} 
+					} else {
+					return {...item, "show": false, "hello":"Not Me!"} 
+				} 
+			: {}
+		
 	)
-	
+		
 	this.setState({menu})
-	console.log(menu)
-}
+	console.log(menu, level, parentItem,  title )	
+	}
+	
+
 	render() {
 		const {menu} = this.state 
 		return <div className="show-result"> 					 
-		<MenuItemList menu = {menu} onClick={(id, level, parent)=> this.onClick(id, level, parent)}/>
+		<MenuItemList menu = {menu} onClick={(title, id, level, parentItem)=> this.onClick(title, id, level, parentItem)}/>
 		</div>		
 	}
 }
 /*//////////////////////////Render/////////////////////////*/	
+
+
 render(
 <App/>,
 document.getElementById('react-container')

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=1.0, user-scalable=no"/>
+<meta charset="utf-8">
+<script src="https://unpkg.com/prop-types/prop-types.js"></script>
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
+<script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
+<title>Testing Area</title>
+<style type='text/css'>
+.hide {
+	display: none 
+}
+</style>
+</head>
+<body>
+<div id="react-container"></div>
+<script type="text/babel">
+const limitLevel = -2
+let level = 0
+let title = "Spiritual"
+let parentItem = "Spiritual"
+let item = {
+				"title": "Creativity", 
+				"level": -1,
+				"id": 1,
+				"parentItem":"Spiritual",
+				"show": false,				 
+			}
+
+/////////////Function that shows Menu//////////////////////
+const checkShowing = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+		{...item, "show": false, "hello":"Not me"} 
+
+const checkLimitLevel = (checkShowingLevelDwn) => (item.level > limitLevel) ? checkShowing() : checkShowingLevelDwn()
+	
+
+	
+const  checkShowingLevelDwn = () => (item.level == (level-1) && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
+		{...item, "show": false, "hello":"Not me 2"} 
+		
+		
+console.log(checkLimitLevel(checkShowingLevelDwn)
+ 
+</script>
+</body>
+</html>			
