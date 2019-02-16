@@ -31,11 +31,21 @@ onClick = (title, id, level, parentItem) => {
 	)	
 	
 	
-	const checkLimitLevel = (level, checkShowing, checkShowingLevelDwn) => (item.level > limitLevel) ? checkShowing() : checkShowingLevelDwn()
-	
-	const checkShowing = (title, level, parentItem) => (item.level <= level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
-		{...item, "show": false, "hello":"Not Me!"} 
-	
-	const  checkShowingLevelDwn = (title, level, parentItem) => (item.level == (level-1) && item.parentItem == title) ? {...item, "show": true} :
-		{...item, "show": false} 
+onClick = (title, id, level, parentItem) => {	
+		let { menu } = this.state
+		
+		menu = menu.map( item => checkLimitLevel(checkShowing(item), checkShowingLevelDwn(item)))		
+				
+		const checkShowing = (item) => (item.level == level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+		{...item, "show": false, "hello":"Not me"} 
+		
+		const  checkShowingLevelDwn = (item) => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
+		{...item, "show": false, "hello":"Not me 2"} 	
+		
+		const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level == limitLevel) ? checkShowing : checkShowingLevelDwn
+			 		
+		
+	this.setState({menu})
+	console.log(menu, level, parentItem,  title )	
+	}	
 		

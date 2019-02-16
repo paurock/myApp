@@ -20,26 +20,33 @@
 <div id="react-container"></div>
 <script type="text/babel">
 const limitLevel = -1
-let level = 0
+let level = -1
 let title = "Spiritual"
 let parentItem = "Spiritual"
-let item = {
+let item1 = {
 				"title": "Creativity", 
 				"level": -1,
 				"id": 1,
 				"parentItem":"Spiritual",
 				"show": false,				 
-			}
+			}			
+let item = {
+				"title": "Private Life", 
+				"level": -2,
+				"id": uuid.v4(),
+				"parentItem":"Material",
+				"show": false,				
+			}			
 
 /////////////Function that shows Menu//////////////////////
-const checkShowing = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+const checkShowing = () => (item.level == level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
 		{...item, "show": false, "hello":"Not me"} 
 
-const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level > limitLevel) ? checkShowing() : checkShowingLevelDwn()
+const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level == limitLevel) ? checkShowing() : checkShowingLevelDwn()
 	
 
 	
-const  checkShowingLevelDwn = () => (item.level == (level-1) && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
+const  checkShowingLevelDwn = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
 		{...item, "show": false, "hello":"Not me 2"} 
 		
 		

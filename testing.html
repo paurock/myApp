@@ -93,22 +93,18 @@ class App extends Component {
 /*After a click Fn shows every Item that one level deeper and have a common parent */	
 	onClick = (title, id, level, parentItem) => {	
 		let { menu } = this.state
-		menu = menu.map( item => 
-			(item.level > limitLevel) ? 
-				if (item.level <= level && item.parentItem == title) {	
-					return {...item, "show": true, "hello":"it's me"} 
-					} else {
-					return {...item, "show": false, "hello":"Not Me!"} 
-				} 
-			: {}
+		let item		
 		
-	)
+		const  checkShowing = (item) => console.log(item, "Works")
+		
+		const checkLimitLevel = (checkShowing, item) => (true) ? checkShowing (item) : console.log("else")
+		
+		menu = menu.map( item => console.log(item) )
 		
 	this.setState({menu})
-	console.log(menu, level, parentItem,  title )	
-	}
-	
-
+	}	
+		
+		
 	render() {
 		const {menu} = this.state 
 		return <div className="show-result"> 					 
