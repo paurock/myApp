@@ -95,11 +95,15 @@ class App extends Component {
 		let { menu } = this.state
 		let item		
 		
-		const  checkShowing = (item) => ({...item, "hello": "Works"})
+		const checkShowingLevelDwn = (item, level) => (item.level == level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+		{...item, "show": false, "hello":"Not me"} 
 		
-		const checkLimitLevel = (checkShowing, item) => (true) ? checkShowing (item) : console.log("else")
+		const  checkShowing = (item, level) => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
+		{...item, "show": false, "hello":"Not me 2"} 
 		
-		menu = menu.map( item => checkLimitLevel(checkShowing, item) )
+		const checkLimitLevel = (checkShowing, item, level) => (item.level == limitLevel) ? checkShowingLevelDwn(item, level): checkShowing (item, level)
+		
+		menu = menu.map( item => checkLimitLevel(checkShowing, item, level) )
 		
 	this.setState({menu})
 	console.log(menu)
