@@ -43,72 +43,72 @@ class App extends Component {
 				"title": "Material", 
 				"level": 0,
 				"id": uuid.v4(),
-				"parentItem":"Material",
+				"parentItem":"Root",				
 				"show": true, 
 			}, 
 			{
 				"title": "Spiritual", 
 				"level": 0,
 				"id": uuid.v4(),
-				"parentItem":"Sprirtual",
+				"parentItem":"Root",				
 				"show": true 				
 			}, 
 			{
 				"title": "Career", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parentItem":"Material",
+				"parentItem":"Material",				
 				"show": false,				 
 			}, 
 			{
 				"title": "Private Life", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parentItem":"Material",
+				"parentItem":"Material",				
 				"show": false,				
 			},
 			{
 				"title": "Education", 
 				"level": -2,
 				"id": uuid.v4(),
-				"parentItem":"Career",
+				"parentItem":"Career",			
 				"show": false,				 
 			}, 
 			{
 				"title": "Work", 
 				"level": -2,
 				"id": uuid.v4(),
-				"parentItem":"Career",
+				"parentItem":"Career",				
 				"show": false,				 
 			},
 			{
 				"title": "Creativity", 
 				"level": -1,
 				"id": uuid.v4(),
-				"parentItem":"Spiritual",
+				"parentItem":"Spiritual",				
 				"show": false,				 
 			}, 
 		]
 	}
 /*After a click Fn shows every Item that one level deeper and have a common parent */	
+     
 	onClick = (title, id, level, parentItem) => {	
 		let { menu } = this.state
-		let item		
+		let item	
 		
-		const checkShowingLevelDwn = (item, level) => (item.level == level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
-		{...item, "show": false, "hello":"Not me"} 
 		
-		const  checkShowing = (item, level) => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
-		{...item, "show": false, "hello":"Not me 2"} 
+		const checkShowing = (item, level) => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+		{...item, "show": false, "hello":"Not me"} 	
 		
-		const checkLimitLevel = (checkShowing, item, level) => (item.level == limitLevel) ? checkShowingLevelDwn(item, level): checkShowing (item, level)
+		 
+	    const checkLevel = () => (level > limitLevel) ? menu = menu.map( item => checkShowing(item, level) ) : console.log("no way")
 		
-		menu = menu.map( item => checkLimitLevel(checkShowing, item, level) )
+		checkLevel()
 		
-	this.setState({menu})
-	console.log(menu)
-	}	
-		
+ 	this.setState({menu})
+	console.log(level, limitLevel)
+	} 	
+	
 		
 	render() {
 		const {menu} = this.state 

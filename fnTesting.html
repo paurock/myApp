@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 <script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
 <script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
-<title>Testing Area</title>
+<title>Testing Fns</title>
 <style type='text/css'>
 .hide {
 	display: none 
@@ -23,14 +23,14 @@ const limitLevel = -1
 let level = -1
 let title = "Spiritual"
 let parentItem = "Spiritual"
-let item1 = {
+let item = {
 				"title": "Creativity", 
 				"level": -1,
 				"id": 1,
 				"parentItem":"Spiritual",
 				"show": false,				 
 			}			
-let item = {
+let item1 = {
 				"title": "Private Life", 
 				"level": -2,
 				"id": uuid.v4(),
@@ -39,16 +39,13 @@ let item = {
 			}			
 
 /////////////Function that shows Menu//////////////////////
-const checkShowing = () => (item.level == level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
+const checkShowing = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
 		{...item, "show": false, "hello":"Not me"} 
-
-const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level == limitLevel) ? checkShowing() : checkShowingLevelDwn()
 	
-
-	
-const  checkShowingLevelDwn = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
+const  checkShowingLevelDwn = () => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
 		{...item, "show": false, "hello":"Not me 2"} 
 		
+const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level < limitLevel) ? checkShowing() : checkShowingLevelDwn()		
 		
 console.log(checkLimitLevel(checkShowing, checkShowingLevelDwn))
  
