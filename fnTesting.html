@@ -38,16 +38,13 @@ let item1 = {
 				"show": false,				
 			}			
 
-/////////////Function that shows Menu//////////////////////
-const checkShowing = () => (item.level == level && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
-		{...item, "show": false, "hello":"Not me"} 
-	
-const  checkShowingLevelDwn = () => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me 2"} :
-		{...item, "show": false, "hello":"Not me 2"} 
-		
-const checkLimitLevel = (checkShowing, checkShowingLevelDwn) => (item.level < limitLevel) ? checkShowing() : checkShowingLevelDwn()		
-		
-console.log(checkLimitLevel(checkShowing, checkShowingLevelDwn))
+///////////////////////////////////
+
+
+
+
+
+console.log())
  
 </script>
 </body>
