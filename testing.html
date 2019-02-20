@@ -21,22 +21,53 @@
 <script type="text/babel">
 const { Component } = React
 const { render } = ReactDOM
-
-/////////////Function that shows Menu//////////////////////
-
+/////////////Fns that show Menu//////////////////////
 const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(title, id, level, childs, parentItem)}>{title}</div>
-
 const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
 	<MenuItem key={menuItem.id} {...menuItem} onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}/>
 )}
 </div>
 
+//////////////////Fns that show, add, remove Notes ///////////////////////
+const AddMessage = ({onNewText=f=>f}) => {
+		let _message
+		const submit = e => {
+		e.preventDefault()
+		onNewText(_message.value)
+		_message.value = ''
+		_message.focus()
+	}
+ return (
+	<form onSubmit={submit}>
+	<input ref={input => _message = input}
+	type="text"
+	placeholder="Enter your message here" required/>
+	<button>ADD</button>
+	</form>
+ )
+}
+
+const Note = ({message, id, onRemove=f=>f}) => <div className="note">{message}
+	<button onClick={()=>onRemove(id)}>X</button>
+</div>
+
+const NoteList = ({notes=[], onRemove=f=>f}) => <div> 
+	{(notes.length === 0) ?
+		<p>No Notes Listed. (Add a Note)</p> :
+	notes.map(note =>
+	<Note key={note.id} 
+			{...note} 
+			onRemove={id=>onRemove(id)}></Note>		
+		)
+ }
+</div>
+/////////////////Tech fns////////////////////
+const extractObjKeys = (arr, key) => arr.map(item=>Object.keys(item))
 
 /*/////////////////// App //////////////////*/
-
 class App extends Component {	
 	state = {
-		menu: [
+		"menu": [
 			{
 				"title": "Material", 
 				"level": 0,
@@ -100,39 +131,89 @@ class App extends Component {
 				"parentItem":"Creativity",		
 				"childs": false,
 				"show": false,				 
-			}, 
+			}, 		
+		], 
+	"notes": [
+				{
+					"message": "First Note",
+					"id": uuid.v4(),						
+				}
+			],
+	"techVars": [
+				{
+					"showNote": false
+					}	
 		]
 	}
-/*After a click Fn shows every Item that one level deeper and have a common parent and childs */	
+// Menu fns//
+/*After a click Fn shows every Item that one level deeper and have a common parent and do have some childs */	
      
 	onClick = (title, id, level, childs, parentItem) => {	
-		let { menu } = this.state
-		let item	
+		let item
+		let { menu, notes, techVars } = this.state			
 		
-		const checkShowing = (item, level) => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true, "hello":"it's me"} :
-		{...item, "show": false, "hello":"Not me"} 			
-	    
-		const checkChilds = () => (childs==true) ? menu = menu.map( item => checkShowing(item, level) ) : console.log("no way")				
+		const checkShowing = (item, level) => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true} :
+		{...item, "show": false} 	
+		
+		menu = menu.map( item => checkShowing(item, level) )
+		
+		const toggleShowNote = (techVars) => techVars.map(item=> ({"showNote": true, "parentItem": title}) )
+	   
+		const checkChilds = () => (childs==false) ?  techVars=toggleShowNote(techVars)	: console.log("no childs")	
+		
 		checkChilds()
-		
- 	this.setState({menu})	 
-	} 	
 	
+ 	this.setState({menu, techVars})	
+	console.log(techVars)
+	} 	
+//Message fns//	
+onRemove = id => {
+		const notes = this.state.notes.filter(
+		note => note.id !== id		
+		)
+	this.setState({notes})
+	console.log("Deleted")
+	}	
+	
+	addNote = text => {
+	const notes = [
+					...this.state.notes,
+					{
+						message: text,
+						id: uuid.v4(),
+					}
+		]
+	this.setState({notes})
+	}
 		
 	render() {
-		const {menu} = this.state 
-		return <div className="show-result"> 					 
-		<MenuItemList menu = {menu} onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
-		</div>		
+		const {menu, notes, techVars} = this.state 
+				
+		let showNote 
+		return <div className="app-container">
+			<div className="show-result"> 					 
+				<MenuItemList menu = {menu} 
+				onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
+			</div>	
+			<div className="note-list" className={ (techVars[0].showNote) ? "show" : "hide" }> 
+				<NoteList notes={notes} onRemove={id=>this.onRemove(id)}/>
+				<AddMessage onNewText={(text)=>this.addNote(text)}/>		
+			</div>	
+		</div>
 	}
 }
 /*//////////////////////////Render/////////////////////////*/	
-
-
 render(
 <App/>,
 document.getElementById('react-container')
 ) 
 </script>
 </body>
-</html>			
+</html>		
+
+
+
+
+
+	
+ 

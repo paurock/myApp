@@ -35,7 +35,6 @@ const AddMessage = ({onNewText=f=>f}) => {
  )
 }
 
-
 const Note = ({message, id, onRemove=f=>f}) => <div className="note">{message}
 	<button onClick={()=>onRemove(id)}>X</button>
 </div>
@@ -59,7 +58,7 @@ class App extends Component {
 		notes: [
 				{
 					message: "First Note",
-					id: uuid.v4(),			
+					id: uuid.v4(),					
 				}
 			]
 		}	
@@ -84,9 +83,11 @@ class App extends Component {
 	
 	render() {
 		const {notes} = this.state
+		const {display} = this.state
 		return <div className="note-list"> 
 		<NoteList notes={notes} onRemove={id=>this.onRemove(id)}/>
 		<AddMessage onNewText={(text)=>this.addNote(text)}/>
+		
 		</div>		
 		}
 	}

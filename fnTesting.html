@@ -19,33 +19,90 @@
 <body>
 <div id="react-container"></div>
 <script type="text/babel">
-const limitLevel = -1
-let level = -1
-let title = "Spiritual"
-let parentItem = "Spiritual"
-let item = {
-				"title": "Creativity", 
+const state = {
+		menu: [
+			{
+				"title": "Material", 
+				"level": 0,
+				"id": uuid.v4(),
+				"parentItem":"Root",
+				"childs": true,
+				"show": true, 
+			}, 
+			{
+				"title": "Spiritual", 
+				"level": 0,
+				"id": uuid.v4(),
+				"parentItem":"Root",
+				"childs": true,
+				"show": true 				
+			}, 
+			{
+				"title": "Career", 
 				"level": -1,
-				"id": 1,
-				"parentItem":"Spiritual",
-				"show": false,				 
-			}			
-let item1 = {
-				"title": "Private Life", 
-				"level": -2,
 				"id": uuid.v4(),
 				"parentItem":"Material",
+				"childs": true,
+				"show": false,				 
+			}, 
+			{
+				"title": "Private Life", 
+				"level": -1,
+				"id": uuid.v4(),
+				"parentItem":"Material",	
+				"childs": true,
 				"show": false,				
-			}			
+			},
+			{
+				"title": "Education", 
+				"level": -2,
+				"id": uuid.v4(),
+				"parentItem":"Career",	
+				"childs": false,
+				"show": false,				 
+			}, 
+			{
+				"title": "Work", 
+				"level": -2,
+				"id": uuid.v4(),
+				"parentItem":"Career",	
+				"childs": false,
+				"show": false,				 
+			},
+			{
+				"title": "Creativity", 
+				"level": -1,
+				"id": uuid.v4(),
+				"parentItem":"Spiritual",
+				"childs": true,
+				"show": false,				 
+			}, 
+			{
+				"title": "Vlog", 
+				"level": -2,
+				"id": uuid.v4(),
+				"parentItem":"Creativity",		
+				"childs": false,
+				"show": false,				 
+			}, 		
+		], 
+	notes: [
+				{
+					message: "First Note",
+					id: uuid.v4(),					
+				}
+			],
+	techVars: [{
+					"showNote": false
+					}	
+			]
+	}
+let {menu, notes, techVars} = state	
+const toggleShowNote = (techVars) => [techVars.map(item=> ({"showNote": true}) )]  
+techVars = toggleShowNote(techVars)
+const newState={menu, notes, techVars}
+console.log(techVars.map((item) =>item[0].showNote ))
 
-///////////////////////////////////
-
-
-
-
-
-console.log())
- 
 </script>
 </body>
-</html>			
+</html>	
