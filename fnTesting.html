@@ -98,11 +98,21 @@ const state = {
 			]
 	}
 let {menu, notes, techVars} = state	
-const toggleShowNote = (techVars) => [techVars.map(item=> ({"showNote": true}) )]  
+const toggleShowNote = (techVars) => techVars.map(item=> ({"showNote": true, "showNotes": false }) ) 
 techVars = toggleShowNote(techVars)
 const newState={menu, notes, techVars}
-console.log(techVars.map((item) =>item[0].showNote ))
+console.log( value  )
 
+
+/*obj = { a: 1, b: 2, c: 3}
+
+keys = Object.keys(obj)
+
+for (var i = 0, l = keys.length; i < l; i++) {
+  console.log(keys[i] + ' is ' + obj[keys[i]]);
+  // keys[i] - это ключ
+  // obj[keys[i]] - а это свойство, доступное по этому ключу
+}*/
 </script>
 </body>
 </html>	

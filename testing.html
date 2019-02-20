@@ -21,48 +21,7 @@
 <script type="text/babel">
 const { Component } = React
 const { render } = ReactDOM
-/////////////Fns that show Menu//////////////////////
-const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(title, id, level, childs, parentItem)}>{title}</div>
-const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
-	<MenuItem key={menuItem.id} {...menuItem} onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}/>
-)}
-</div>
 
-//////////////////Fns that show, add, remove Notes ///////////////////////
-const AddMessage = ({onNewText=f=>f}) => {
-		let _message
-		const submit = e => {
-		e.preventDefault()
-		onNewText(_message.value)
-		_message.value = ''
-		_message.focus()
-	}
- return (
-	<form onSubmit={submit}>
-	<input ref={input => _message = input}
-	type="text"
-	placeholder="Enter your message here" required/>
-	<button>ADD</button>
-	</form>
- )
-}
-
-const Note = ({message, id, onRemove=f=>f}) => <div className="note">{message}
-	<button onClick={()=>onRemove(id)}>X</button>
-</div>
-
-const NoteList = ({notes=[], onRemove=f=>f}) => <div> 
-	{(notes.length === 0) ?
-		<p>No Notes Listed. (Add a Note)</p> :
-	notes.map(note =>
-	<Note key={note.id} 
-			{...note} 
-			onRemove={id=>onRemove(id)}></Note>		
-		)
- }
-</div>
-/////////////////Tech fns////////////////////
-const extractObjKeys = (arr, key) => arr.map(item=>Object.keys(item))
 
 /*/////////////////// App //////////////////*/
 class App extends Component {	
@@ -135,13 +94,14 @@ class App extends Component {
 		], 
 	"notes": [
 				{
-					"message": "First Note",
+					"message": "Here you can write your notes!",
 					"id": uuid.v4(),						
 				}
 			],
 	"techVars": [
 				{
-					"showNote": false
+					"showNote": false, 
+					"parentItem": null
 					}	
 		]
 	}
@@ -159,7 +119,7 @@ class App extends Component {
 		
 		const toggleShowNote = (techVars) => techVars.map(item=> ({"showNote": true, "parentItem": title}) )
 	   
-		const checkChilds = () => (childs==false) ?  techVars=toggleShowNote(techVars)	: console.log("no childs")	
+		const checkChilds = () => (childs) ? null : techVars=toggleShowNote(techVars)	
 		
 		checkChilds()
 	
@@ -172,15 +132,15 @@ onRemove = id => {
 		note => note.id !== id		
 		)
 	this.setState({notes})
-	console.log("Deleted")
 	}	
 	
-	addNote = text => {
+	addNote = (text) => {
 	const notes = [
 					...this.state.notes,
 					{
 						message: text,
 						id: uuid.v4(),
+						parentItem: this.state.techVars[0].parentItem
 					}
 		]
 	this.setState({notes})
@@ -188,7 +148,7 @@ onRemove = id => {
 		
 	render() {
 		const {menu, notes, techVars} = this.state 
-				
+		console.log(notes)	
 		let showNote 
 		return <div className="app-container">
 			<div className="show-result"> 					 
@@ -197,11 +157,57 @@ onRemove = id => {
 			</div>	
 			<div className="note-list" className={ (techVars[0].showNote) ? "show" : "hide" }> 
 				<NoteList notes={notes} onRemove={id=>this.onRemove(id)}/>
-				<AddMessage onNewText={(text)=>this.addNote(text)}/>		
+				<AddNote onNewText={(text)=>this.addNote(text)}/>		
 			</div>	
 		</div>
 	}
 }
+
+
+
+/////////////Fns that show Menu//////////////////////
+const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(title, id, level, childs, parentItem)}>{title}</div>
+const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
+	<MenuItem key={menuItem.id} {...menuItem} onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}/>
+)}
+</div>
+
+//////////////////Fns that show, add, remove Notes ///////////////////////
+const AddNote = ({onNewText=f=>f}) => {
+		let _message
+		const submit = e => {
+		e.preventDefault()
+		onNewText(_message.value)
+		_message.value = ''
+		_message.focus()
+	}
+ return (
+	<form onSubmit={submit}>
+	<input ref={input => _message = input}
+	type="text"
+	placeholder="Enter your message here" required/>
+	<button>ADD</button>
+	</form>
+ )
+}
+
+const Note = ({message, id, onRemove=f=>f}) => <div className="note">{message}
+	<button onClick={()=>onRemove(id)}>X</button>
+</div>
+
+const NoteList = ({notes=[], onRemove=f=>f}) => <div> 
+	{(notes.length === 0) ?
+		<p>No Notes Listed. (Add a Note)</p> :
+	notes.map(note =>
+	<Note key={note.id} 
+			{...note} 
+			onRemove={id=>onRemove(id)}></Note>		
+		)
+ }
+</div>
+/////////////////Tech fns////////////////////
+ 
+
 /*//////////////////////////Render/////////////////////////*/	
 render(
 <App/>,
