@@ -98,12 +98,11 @@ class App extends Component {
 					"id": uuid.v4(),						
 				}
 			],
-	"techVars": [
+	"techVars": 
 				{
 					"showNote": false, 
 					"parentItem": null
-					}	
-		]
+					}		
 	}
 // Menu fns//
 /*After a click Fn shows every Item that one level deeper and have a common parent and do have some childs */	
@@ -117,7 +116,7 @@ class App extends Component {
 		
 		menu = menu.map( item => checkShowing(item, level) )
 		
-		const toggleShowNote = (techVars) => techVars.map(item=> ({"showNote": true, "parentItem": title}) )
+		const toggleShowNote = (techVars) => ({"showNote": true, "parentItem": title})
 	   
 		const checkChilds = () => (childs) ? null : techVars=toggleShowNote(techVars)	
 		
@@ -140,7 +139,7 @@ onRemove = id => {
 					{
 						message: text,
 						id: uuid.v4(),
-						parentItem: this.state.techVars[0].parentItem
+						parentItem: this.state.techVars.parentItem
 					}
 		]
 	this.setState({notes})
@@ -155,7 +154,7 @@ onRemove = id => {
 				<MenuItemList menu = {menu} 
 				onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
 			</div>	
-			<div className="note-list" className={ (techVars[0].showNote) ? "show" : "hide" }> 
+			<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" }> 
 				<NoteList notes={notes} onRemove={id=>this.onRemove(id)}/>
 				<AddNote onNewText={(text)=>this.addNote(text)}/>		
 			</div>	
