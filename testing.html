@@ -94,14 +94,15 @@ class App extends Component {
 		], 
 	"notes": [
 				{
-					"message": "Here you can write your notes!",
-					"id": uuid.v4(),						
+					"note": "Here you can write your notes!",
+					"id": uuid.v4(),
+					"categoryNote": "default"
 				}
 			],
 	"techVars": 
 				{
 					"showNote": false, 
-					"parentItem": null
+					"category": null
 					}		
 	}
 // Menu fns//
@@ -116,7 +117,7 @@ class App extends Component {
 		
 		menu = menu.map( item => checkShowing(item, level) )
 		
-		const toggleShowNote = (techVars) => ({"showNote": true, "parentItem": title})
+		const toggleShowNote = (techVars) => ({"showNote": true, "category": title})
 	   
 		const checkChilds = () => (childs) ? null : techVars=toggleShowNote(techVars)	
 		
@@ -137,25 +138,22 @@ onRemove = id => {
 	const notes = [
 					...this.state.notes,
 					{
-						message: text,
+						note: text,
 						id: uuid.v4(),
-						parentItem: this.state.techVars.parentItem
+						categoryNote: this.state.techVars.category
 					}
 		]
 	this.setState({notes})
 	}
 		
 	render() {
-		const {menu, notes, techVars} = this.state 
-		console.log(notes)	
-		let showNote 
+		const {menu, notes, techVars} = this.state		 
 		return <div className="app-container">
 			<div className="show-result"> 					 
-				<MenuItemList menu = {menu} 
-				onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
+				<MenuItemList menu = {menu} onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
 			</div>	
 			<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" }> 
-				<NoteList notes={notes} onRemove={id=>this.onRemove(id)}/>
+				<NoteList notes={notes} techVars={techVars} onRemove={id=>this.onRemove(id)}/>
 				<AddNote onNewText={(text)=>this.addNote(text)}/>		
 			</div>	
 		</div>
@@ -165,11 +163,20 @@ onRemove = id => {
 
 
 /////////////Fns that show Menu//////////////////////
-const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => <div className={(show) ? "show" : "hide"} onClick={()=> onClick(title, id, level, childs, parentItem)}>{title}</div>
 const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
-	<MenuItem key={menuItem.id} {...menuItem} onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}/>
-)}
-</div>
+		<MenuItem key={menuItem.id} {...menuItem}  
+			onClick={(title, id, level, childs, parentItem)=> 
+				onClick(title, id, level, childs, parentItem)}
+		/>
+		)}
+	</div>
+
+const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => 
+		<div className={(show) ? "show" : "hide"} 
+			onClick={()=> onClick(title, id, level, childs, parentItem)}>
+				{title} 
+		</div>
+
 
 //////////////////Fns that show, add, remove Notes ///////////////////////
 const AddNote = ({onNewText=f=>f}) => {
@@ -190,19 +197,17 @@ const AddNote = ({onNewText=f=>f}) => {
  )
 }
 
-const Note = ({message, id, onRemove=f=>f}) => <div className="note">{message}
-	<button onClick={()=>onRemove(id)}>X</button>
+const NoteList = ({notes=[], menu=[], techVars={}, onRemove=f=>f}) => <div> 
+{(notes.length === 0) ? <p>No Notes Listed. (Add a Note)</p> : notes.map(note => 
+			<Note key={note.id} 
+				{...note}  {...techVars}  
+				onRemove={id=>onRemove(id)}/>			
+		)		 
+	}
 </div>
 
-const NoteList = ({notes=[], onRemove=f=>f}) => <div> 
-	{(notes.length === 0) ?
-		<p>No Notes Listed. (Add a Note)</p> :
-	notes.map(note =>
-	<Note key={note.id} 
-			{...note} 
-			onRemove={id=>onRemove(id)}></Note>		
-		)
- }
+const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => <div className="note" className={ (categoryNote==category || categoryNote=="default" ) ? "show" : "hide" } >{note}
+	<button onClick={()=>onRemove(id)}>X</button><p></p>
 </div>
 /////////////////Tech fns////////////////////
  
