@@ -114,17 +114,13 @@ class App extends Component {
 		
 		const checkShowing = (item, level) => (item.level >= level-1 && item.parentItem == title) ? {...item, "show": true} :
 		{...item, "show": false} 	
-		
 		menu = menu.map( item => checkShowing(item, level) )
+		const toggleShowNote = (techVars) => ({"showNote": true, "category": title}) // fn that add fields to techVars
+	   	const checkChilds = () => (childs) ? null : techVars=toggleShowNote(techVars)	// Fn that checks whether the menu item has childs
 		
-		const toggleShowNote = (techVars) => ({"showNote": true, "category": title})
-	   
-		const checkChilds = () => (childs) ? null : techVars=toggleShowNote(techVars)	
-		
-		checkChilds()
-	
+		checkChilds()	
+	console.log(menu)
  	this.setState({menu, techVars})	
-	console.log(techVars)
 	} 	
 //Message fns//	
 onRemove = id => {
@@ -149,8 +145,8 @@ onRemove = id => {
 	render() {
 		const {menu, notes, techVars} = this.state		 
 		return <div className="app-container">
-			<div className="show-result"> 					 
-				<MenuItemList menu = {menu} onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
+			<div className="menu-list"> 					 
+				<MenuItemList menu = {menu.filter(item => item.show==true)} onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
 			</div>	
 			<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" }> 
 				<NoteList notes={notes} techVars={techVars} onRemove={id=>this.onRemove(id)}/>
