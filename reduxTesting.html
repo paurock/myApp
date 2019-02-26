@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=1.0, user-scalable=no"/>
+<meta charset="utf-8">
+<script src="https://unpkg.com/prop-types/prop-types.js"></script>
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
+<script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
+<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<title>Redux Testing Area</title>
+<style type='text/css'>
+.hide {
+	display: none 
+}
+</style>
+</head>
+<body>
+<div id="react-container"></div>
+<script type="text/babel">
+const { Component } = React
+const { render } = ReactDOM
+const { v4 } = uuid
+/////////////////////REDUX////////////////////
+const {createStore, combineReducers, compose, applyMiddleware } = Redux
+
+const stateData = {
+		"menu": [
+			{
+				"title": "Material", 
+				"level": 0,
+				"id": v4(),
+				"parentItem":"Root",
+				"childs": true,
+				"show": true, 
+			}, 
+			{
+				"title": "Spiritual", 
+				"level": 0,
+				"id": v4(),
+				"parentItem":"Root",
+				"childs": true,
+				"show": true 				
+			}, 
+			{
+				"title": "Career", 
+				"level": -1,
+				"id": v4(),
+				"parentItem":"Material",
+				"childs": true,
+				"show": false,				 
+			}, 
+			{
+				"title": "Private Life", 
+				"level": -1,
+				"id": v4(),
+				"parentItem":"Material",	
+				"childs": false,
+				"show": false,				
+			},
+			{
+				"title": "Education", 
+				"level": -2,
+				"id": v4(),
+				"parentItem":"Career",	
+				"childs": false,
+				"show": false,				 
+			}, 
+			{
+				"title": "Work", 
+				"level": -2,
+				"id": v4(),
+				"parentItem":"Career",	
+				"childs": false,
+				"show": false,				 
+			},
+			{
+				"title": "Creativity", 
+				"level": -1,
+				"id": v4(),
+				"parentItem":"Spiritual",
+				"childs": true,
+				"show": false,				 
+			}, 
+			{
+				"title": "Vlog", 
+				"level": -2,
+				"id": v4(),
+				"parentItem":"Creativity",		
+				"childs": false,
+				"show": false,				 
+			}, 		
+		], 
+	"notes": [
+				{
+					"note": "Here you can write your notes!",
+					"id": "1",
+					"categoryNote": "default"
+				}
+			],
+	"techVars": 
+				{
+					"showNote": false, 
+					"category": null
+					}		
+	}
+	
+
+	
+
+//////////////reducers//////////////////
+const menu = (state = [], action) => state
+
+const note = (state = {}, action) => {
+          switch (action.type) {
+              case "ADD_NOTE":
+                  return {  
+					note: action.text,
+					id: v4(),					
+					categoryNote: action.categoryNote
+                  }              
+              default :
+                  return state
+          }
+      }
+	  
+const notes = (state = [], action) => {
+        switch (action.type) {
+            case "ADD_NOTE" :
+                return [
+					...state,
+                    note({}, action)					
+                ] 
+			case "REMOVE_COLOR" :
+				return state.filter(note => note.id !== action.id)
+            default:
+                return state
+          }
+      }	 
+	  
+const techVars = (state={}, action) => {
+		switch (action.type) {
+			case "ADD_TECHVARS" :
+					return {
+						showNote: action.showNote, 
+						category: action.category
+						}
+			default: 
+				return state				
+			}
+}
+
+/////////////STORE//////////////////////
+  const store = createStore(
+        combineReducers({menu, notes, techVars}), 
+		stateData
+    )
+	
+////////action creators////////
+const addNote = (text, title) =>
+        ({
+            type: "ADD_NOTE",
+            id: v4(),
+            text,
+		    categoryNote: title
+        })
+const removeNote = id =>
+        ({
+            type: "REMOVE_COLOR",
+            id
+        })
+const addTechVars = (showNote, category) => 
+		({
+			type: "ADD_TECHVARS",
+			showNote, 
+			category 
+		})
+		
+console.log(store.getState())
+ 
+store.dispatch(addNote("Hello World!", "Vlog")) 
+store.dispatch(addTechVars(true, "Vlog"))
+store.dispatch(removeNote("1"))
+ 
+console.log(store.getState())
+ 
+</script>
+</body>
+</html>	

@@ -27,10 +27,7 @@ const { v4 } = uuid
 /////////////////////REDUX////////////////////
 const {createStore, combineReducers, compose, applyMiddleware } = Redux
 
-
-/*/////////////////// App //////////////////*/
-class App extends Component {	
-	state = {
+const stateData = {
 		"menu": [
 			{
 				"title": "Material", 
@@ -110,6 +107,92 @@ class App extends Component {
 					"category": null
 					}		
 	}
+	
+/////////////STORE//////////////////////
+const logger = store => next => action => {
+    let result    
+    console.log('prev state', store.getState())   
+    result = next(action)
+    console.log('next state', store.getState())    
+    return result
+}
+
+const saver = store => next => action => {
+    let result = next(action)
+    localStorage['redux-store'] = JSON.stringify(store.getState())
+    return result
+}
+
+const storeFactory = (initialState=stateData) =>
+    applyMiddleware(logger, saver)(createStore)(
+        combineReducers({colors, sort}),
+        (localStorage['redux-store']) ?
+            JSON.parse(localStorage['redux-store']) :
+            stateData
+    )
+	
+
+//////////////reducers//////////////////
+const note = (state = {}, action) => {
+          switch (action.type) {
+              case "ADD_NOTE":
+                  return {
+                    note: action.text,
+					id: v4(),
+					categoryNote: action.category
+                  }              
+              default :
+                  return state
+          }
+      }
+	  
+const notes = (state = [], action) => {
+        switch (action.type) {
+            case "ADD_COLOR" :
+                return [
+                    ...state,
+                    note({}, action)
+                ] 
+			case "REMOVE_COLOR" :
+				return state.filter(note => note.id !== action.id)
+            default:
+                return state
+          }
+      }	 
+	  
+const techVars = (state={}, action) => {
+		switch (action.type) {
+			case "ADD_TECHVARS" :
+					return {
+						showNote: action.showNote, 
+						category: action.category
+						}
+			default : 
+				return state				
+			}
+}
+////////action creators////////
+const addNote = text =>
+        ({
+            type: "ADD_NOTE",
+            id: v4(),
+            text,
+		    categoryNote: store.getState.techVars.category
+        })
+const removeColor = id =>
+        ({
+            type: "REMOVE_COLOR",
+            id
+        })
+const techVars = title => 
+		({
+			type: "ADD_TECHVARS",
+			showNote: true, 
+			category: title 
+		})
+/*/////////////////// App //////////////////*/
+class App extends Component {	
+	
 // Menu fns//
 /*After a click Fn shows every Item that one level deeper and have a common parent and do have some childs */	
      
@@ -126,26 +209,7 @@ class App extends Component {
 	console.log(menu)
  	this.setState({menu, techVars})	
 	} 	
-//Message fns//	
-onRemove = id => {
-		const notes = this.state.notes.filter(
-		note => note.id !== id		
-		)
-	this.setState({notes})
-	}	
 	
-	addNote = (text) => {
-	const notes = [
-					...this.state.notes,
-					{
-						note: text,
-						id: uuid.v4(),
-						categoryNote: this.state.techVars.category
-					}
-		]
-	this.setState({notes})
-	}
-		
 	render() {
 		const {menu, notes, techVars} = this.state		 
 		return <div className="container-fluid mt-2">
@@ -154,7 +218,7 @@ onRemove = id => {
 			</div>	
 			<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" }> 
 				<NoteList notes={notes} techVars={techVars} onRemove={id=>this.onRemove(id)}/>
-				<AddNote onNewText={(text)=>this.addNote(text)}/>		
+				<AddNoteForm onNewText={(text)=>this.addNote(text)}/>		
 			</div>	
 		</div>
 	}
@@ -173,7 +237,9 @@ const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) =>
 				<p className="alert alert-primary m-1">{title} </p>
 		</div>
 //////////////////Fns that show, add, remove Notes ///////////////////////
-const AddNote = ({onNewText=f=>f}) => {
+
+/////////////Add new note///////////////
+const AddNoteForm = ({onNewText=f=>f}) => {
 		let _message
 		const submit = e => {
 		e.preventDefault()
@@ -188,6 +254,13 @@ const AddNote = ({onNewText=f=>f}) => {
 	</form>
  )
 }
+AddColorForm.propTypes = {
+    onNewText: PropTypes.func
+}
+///////////////
+
+
+
 const NoteList = ({notes=[], menu=[], techVars={}, onRemove=f=>f}) => <div> 
 {(notes.length === 0) ? <p>No Notes Listed. (Add a Note)</p> : notes.map(note => 
 			<Note key={note.id} 
@@ -196,16 +269,35 @@ const NoteList = ({notes=[], menu=[], techVars={}, onRemove=f=>f}) => <div>
 		)		 
 	}
 </div>
+
 const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => 
 	<div className={ (categoryNote==category || categoryNote=="default" ) ? "show" : "hide" } >					
 	<button className="ml-2 mt-3 close" data-dismiss="toast" aria-label="Close" onClick={()=>onRemove(id)}>X</button><p></p>
 	<div className="toast-body mb-0">{note}</div>
 </div>
-/////////////////Tech fns////////////////////
+
+/////////////CONTAINERS///////////////
+
+
+const NewNote = connect(
+    null,
+    dispatch =>
+        ({
+            onNewColor(title, color) {
+                dispatch(addColor(title,color))
+            }
+        })
+)(AddNoteForm)
  
-/*//////////////////////////Render/////////////////////////*/	
+///////////////Render////////////////
+const store = storeFactory()
+window.React = React
+window.store = store
+
 render(
-<App/>,
+ <Provider store={store}>
+        <App />
+    </Provider>,
 document.getElementById('react-container')
 ) 
 </script>
