@@ -97,7 +97,7 @@ const stateData = {
 	"notes": [
 				{
 					"note": "Here you can write your notes!",
-					"id": v4(),
+					"id": 0,
 					"categoryNote": "default"
 				}
 			],
@@ -108,38 +108,16 @@ const stateData = {
 					}		
 	}
 	
-/////////////STORE//////////////////////
-const logger = store => next => action => {
-    let result    
-    console.log('prev state', store.getState())   
-    result = next(action)
-    console.log('next state', store.getState())    
-    return result
-}
+////////////REDUCERS//////////////////////
+const menu = (state = [], action) => state
 
-const saver = store => next => action => {
-    let result = next(action)
-    localStorage['redux-store'] = JSON.stringify(store.getState())
-    return result
-}
-
-const storeFactory = (initialState=stateData) =>
-    applyMiddleware(logger, saver)(createStore)(
-        combineReducers({colors, sort}),
-        (localStorage['redux-store']) ?
-            JSON.parse(localStorage['redux-store']) :
-            stateData
-    )
-	
-
-//////////////reducers//////////////////
 const note = (state = {}, action) => {
           switch (action.type) {
               case "ADD_NOTE":
-                  return {
-                    note: action.text,
-					id: v4(),
-					categoryNote: action.category
+                  return {  
+					note: action.text,
+					id: v4(),					
+					categoryNote: action.categoryNote
                   }              
               default :
                   return state
@@ -148,10 +126,10 @@ const note = (state = {}, action) => {
 	  
 const notes = (state = [], action) => {
         switch (action.type) {
-            case "ADD_COLOR" :
+            case "ADD_NOTE" :
                 return [
-                    ...state,
-                    note({}, action)
+					...state,
+                    note({}, action)					
                 ] 
 			case "REMOVE_COLOR" :
 				return state.filter(note => note.id !== action.id)
@@ -167,28 +145,35 @@ const techVars = (state={}, action) => {
 						showNote: action.showNote, 
 						category: action.category
 						}
-			default : 
+			default: 
 				return state				
 			}
 }
+
+/////////////STORE//////////////////////
+  const store = createStore(
+        combineReducers({menu, notes, techVars}), 
+		stateData
+    )
+	
 ////////action creators////////
-const addNote = text =>
+const addNote = (text, title) =>
         ({
             type: "ADD_NOTE",
             id: v4(),
             text,
-		    categoryNote: store.getState.techVars.category
+		    categoryNote: title
         })
-const removeColor = id =>
+const removeNote = id =>
         ({
             type: "REMOVE_COLOR",
             id
         })
-const techVars = title => 
+const addTechVars = (showNote, category) => 
 		({
 			type: "ADD_TECHVARS",
-			showNote: true, 
-			category: title 
+			showNote, 
+			category 
 		})
 /*/////////////////// App //////////////////*/
 class App extends Component {	
@@ -217,8 +202,8 @@ class App extends Component {
 				<MenuItemList menu = {menu.filter(item => item.show==true)} onClick={(title, id, level, childs, parentItem)=> this.onClick(title, id, level, childs, parentItem)}/>
 			</div>	
 			<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" }> 
-				<NoteList notes={notes} techVars={techVars} onRemove={id=>this.onRemove(id)}/>
-				<AddNoteForm onNewText={(text)=>this.addNote(text)}/>		
+				<NoteList notes={notes} techVars={techVars} onRemove={id=>removeColor(id)}/>
+				<AddNoteForm onNewText={(text)=>addNote(text)}/>		
 			</div>	
 		</div>
 	}
