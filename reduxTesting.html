@@ -9,7 +9,6 @@
 		<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 		<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
 		<script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
-		<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<title>Redux Testing Area</title>
 		<style type='text/css'>
@@ -107,12 +106,19 @@
 					"category": null
 				}		
 			}
-			
-			
-			
-			
-			//////////////reducers//////////////////
-			const menu = (state = [], action) => state
+					
+			//////////////REDUCERS//////////////////
+			const menu = (state = {}, action) => {
+				switch (action.type) {
+					case "SHOW_ITEM_OR_NOT" :
+					return {						
+							...state,				
+							show: action.show
+						}					
+					default:
+					return state
+				}	
+			} 
 			
 			const note = (state = {}, action) => {
 				switch (action.type) {
@@ -134,8 +140,6 @@
 					...state,
                     note({}, action)					
 					] 
-					case "REMOVE_COLOR" :
-					return state.filter(note => note.id !== action.id)
 					default:
 					return state
 				}
@@ -155,8 +159,7 @@
 			
 			/////////////STORE//////////////////////
 			const logger = store => next => action => {
-				let result				 
-				console.log('prev state', store.getState())				 
+				let result				 			 
 				result = next(action)
 				console.log('next state', store.getState())				 
 				return result
@@ -168,18 +171,24 @@
 				return result
 			}		
 			
-			const store = applyMiddleware(logger, saver)(createStore)(
+			const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
 			combineReducers({menu, notes, techVars}), 
 			(localStorage['redux-store']) ?
-				JSON.parse(localStorage['redux-store']) :
-				stateData
+			JSON.parse(localStorage['redux-store']) :
+			stateData
 			) 
-			 
-			/* 
 			
+			/* 
+				
 			*/
 			
 			////////action creators////////
+			const setMenuFlag = (showFlag) => ({	 
+				type: "SHOW_ITEM_OR_NOT", 
+				show: showFlag	
+			})
+			
+			
 			const addNote = (text, title) =>
 			({
 				type: "ADD_NOTE",
@@ -198,14 +207,16 @@
 				showNote, 
 				category 
 			})
-						
-			console.log(store.getState())
+			
+			localStorage.clear()
+			const store = storeFactory() 
 			
 			store.dispatch(addNote("Hello World!", "Vlog")) 
-			store.dispatch(addTechVars(true, "Vlog"))
-			store.dispatch(removeNote("1"))
 			
-		 
+			store.dispatch(setMenuFlag(true)) 
+			
+			
+			
 			
 		</script>
 	</body>
