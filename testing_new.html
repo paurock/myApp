@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=1.0, user-scalable=no"/>
+<meta charset="utf-8">
+<script src="https://unpkg.com/prop-types/prop-types.js"></script>
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
+<script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<title>Redux Testing Area</title>
+<style type='text/css'>
+.hide {
+	display: none 
+}
+</style>
+</head>
+<body>
+<div id="react-container"></div>
+<script type="text/babel">
+const { Component } = React
+const { render } = ReactDOM
+const { v4 } = uuid
+/////////////////////REDUX////////////////////
+const {createStore, combineReducers, compose, applyMiddleware } = Redux
+
+const stateData = {
+	"menu": [
+		{
+			"title": "Material", 
+			"level": 0,
+			"id": v4(),
+			"parentItem":"Root",
+			"childs": true,
+			"show": true, 
+		}, 
+		{
+			"title": "Spiritual", 
+			"level": 0,
+			"id": v4(),
+			"parentItem":"Root",
+			"childs": true,
+			"show": true 				
+		}, 
+		{
+			"title": "Career", 
+			"level": -1,
+			"id": v4(),
+			"parentItem":"Material",
+			"childs": true,
+			"show": false,				 
+		}, 
+		{
+			"title": "Private Life", 
+			"level": -1,
+			"id": v4(),
+			"parentItem":"Material",	
+			"childs": false,
+			"show": false,				
+		},
+		{
+			"title": "Education", 
+			"level": -2,
+			"id": v4(),
+			"parentItem":"Career",	
+			"childs": false,
+			"show": false,				 
+		}, 
+		{
+			"title": "Work", 
+			"level": -2,
+			"id": v4(),
+			"parentItem":"Career",	
+			"childs": false,
+			"show": false,				 
+		},
+		{
+			"title": "Creativity", 
+			"level": -1,
+			"id": v4(),
+			"parentItem":"Spiritual",
+			"childs": true,
+			"show": false,				 
+		}, 
+		{
+			"title": "Vlog", 
+			"level": -2,
+			"id": v4(),
+			"parentItem":"Creativity",		
+			"childs": false,
+			"show": false,				 
+		}, 		
+	], 
+	"notes": [
+		{
+			"note": "Here you can write your notes!",
+			"id": "1",
+			"categoryNote": "default"
+		}
+	],
+	"techVars": 
+	{
+		"showNote": false, 
+		"category": null
+	}		
+}
+
+//////////////REDUCERS//////////////////
+
+
+const menu = (state = [], action) => {
+	switch (action.type) {
+		case "SHOW_ITEM_OR_NOT" :
+		return state.map( item=> 
+		(item.level >= action.level-1 && item.parentItem == action.title) ? 
+		{...item, "show": true} :
+		{...item, "show": false} ) 
+		default:
+		return state
+	}	
+}
+
+const note = (state = {}, action) => {
+	switch (action.type) {
+		case "ADD_NOTE":
+		return {  
+			note: action.text,
+			id: v4(),					
+			categoryNote: action.categoryNote
+		}              
+		default :
+		return state
+	}
+}
+
+const notes = (state = [], action) => {
+	switch (action.type) {
+		case "ADD_NOTE" :
+		return [
+			...state,
+			note({}, action)					
+		] 
+		default:
+		return state
+	}
+}	 
+
+const addTechVars = (state={}, action) => {
+	switch (action.type) {
+		case "SET_SHOWNOTE_TRUE" :
+		return (action.childs) ? null : 
+		{
+			showNote: true, 
+			category: action.title
+		}
+		default: 
+		return state				
+	}
+}
+
+/////////////STORE//////////////////////
+const logger = store => next => action => {
+	let result				 			 
+	result = next(action)
+	console.log('next state', store.getState())				 
+	return result
+}
+
+const saver = store => next => action => {
+	let result = next(action)
+	localStorage['redux-store'] = JSON.stringify(store.getState())
+	return result
+}		
+
+const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
+combineReducers({menu, notes, addTechVars}), 
+(localStorage['redux-store']) ?
+JSON.parse(localStorage['redux-store']) :
+stateData
+) 
+
+/* 
+	
+*/
+
+////////action creators////////
+const setMenuFlag = (title, level) => ({	 
+	type: "SHOW_ITEM_OR_NOT",				
+	level,
+	title
+})
+
+
+const addNote = (text, title) =>
+({
+	type: "ADD_NOTE",
+	id: v4(),
+	text,
+	categoryNote: title
+})
+const removeNote = id =>
+({
+	type: "REMOVE_COLOR",
+	id
+})
+const addTechShowNote = (title, childs) => 
+({
+	type: "SET_SHOWNOTE_TRUE",				  
+	title,
+	childs
+})
+
+localStorage.clear()
+const store = storeFactory() 
+
+
+const App = () =>  {	
+	let title, id, level, childs, parentItem 
+	const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
+	const toggleShowNote=(title, childs)=> store.dispatch(addTechShowNote(title, childs)) 
+	
+	const onClick = (title, id, level, childs, parentItem) => {	
+		showHideMenu (title, level)
+		toggleShowNote(title, childs)				 			
+	}
+	
+	const {menu, notes, techVars} = store.getState()
+	return ( <div className="container-fluid mt-2">
+	<div className="menu-list"> 					 
+	<MenuItemList menu = {menu.filter(item => item.show==true)} 
+	onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
+	/>
+	</div>
+	</div>
+	)		
+}	
+
+/////////////Fns that show Menu//////////////////////
+const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
+	<MenuItem key={menuItem.id} {...menuItem}  
+	onClick={(title, id, level, childs, parentItem)=> 
+	onClick(title, id, level, childs, parentItem)}
+	/>
+)}
+</div>
+const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => 
+<div className={(show) ? "show" : "hide"} 
+onClick={()=> onClick(title, id, level, childs, parentItem)}>
+<p className="alert alert-primary m-1">{title} </p>
+</div>
+
+window.React = React
+window.store = store
+const rendering = () => render(
+<App store={store}/>,
+document.getElementById('react-container')
+) 
+store.subscribe(rendering)
+rendering()
+</script>
+</body>
+</html>	
