@@ -106,19 +106,21 @@
 					"category": null
 				}		
 			}
-					
+			
 			//////////////REDUCERS//////////////////
-			const menu = (state = {}, action) => {
+			
+			
+			const menu = (state = [], action) => {
 				switch (action.type) {
 					case "SHOW_ITEM_OR_NOT" :
-					return {						
-							...state,				
-							show: action.show
-						}					
+					return state.map( item=> 
+					(item.level >= action.level-1 && item.parentItem == action.title) ? 
+					{...item, "show": true} :
+					{...item, "show": false} ) 
 					default:
 					return state
 				}	
-			} 
+			}
 			
 			const note = (state = {}, action) => {
 				switch (action.type) {
@@ -138,19 +140,20 @@
 					case "ADD_NOTE" :
 					return [
 					...state,
-                    note({}, action)					
+					note({}, action)					
 					] 
 					default:
 					return state
 				}
 			}	 
 			
-			const techVars = (state={}, action) => {
+			const addTechVars = (state={}, action) => {
 				switch (action.type) {
-					case "ADD_TECHVARS" :
-					return {
-						showNote: action.showNote, 
-						category: action.category
+					case "SET_SHOWNOTE_TRUE" :
+					return (action.childs) ? null : 
+						{
+						showNote: true, 
+						category: action.title
 					}
 					default: 
 					return state				
@@ -172,7 +175,7 @@
 			}		
 			
 			const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
-			combineReducers({menu, notes, techVars}), 
+			combineReducers({menu, notes, addTechVars}), 
 			(localStorage['redux-store']) ?
 			JSON.parse(localStorage['redux-store']) :
 			stateData
@@ -183,9 +186,10 @@
 			*/
 			
 			////////action creators////////
-			const setMenuFlag = (showFlag) => ({	 
-				type: "SHOW_ITEM_OR_NOT", 
-				show: showFlag	
+			const setMenuFlag = (title, level) => ({	 
+				type: "SHOW_ITEM_OR_NOT",				
+				level,
+				title
 			})
 			
 			
@@ -201,23 +205,35 @@
 				type: "REMOVE_COLOR",
 				id
 			})
-			const addTechVars = (showNote, category) => 
+			const addTechShowNote = (title, childs) => 
 			({
-				type: "ADD_TECHVARS",
-				showNote, 
-				category 
+				type: "SET_SHOWNOTE_TRUE",				  
+				title,
+				childs
 			})
 			
 			localStorage.clear()
 			const store = storeFactory() 
 			
-			store.dispatch(addNote("Hello World!", "Vlog")) 
 			
-			store.dispatch(setMenuFlag(true)) 
-			
-			
-			
-			
-		</script>
-	</body>
+			const App = () =>  {	
+				let title, id, level, childs, parentItem 
+				const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
+				const toggleShowNote=(title, childs)=> store.dispatch(addTechShowNote(title, childs)) 
+								
+			  const onClick = (title, id, level, childs, parentItem) => {	
+					showHideMenu (title, level)
+					toggleShowNote(title, childs)				 			
+			  }
+			return (<div>
+				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>			
+			</div>)		
+		}	
+				
+		render(
+		<App/>,
+		document.getElementById('react-container')
+		) 
+	</script>
+</body>
 </html>	
