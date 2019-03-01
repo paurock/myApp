@@ -23,6 +23,7 @@
 const { Component } = React
 const { render } = ReactDOM
 const { v4 } = uuid
+
 /////////////////////REDUX////////////////////
 const {createStore, combineReducers, compose, applyMiddleware } = Redux
 
@@ -127,19 +128,21 @@ const note = (state = {}, action) => {
 			note: action.text,
 			id: v4(),					
 			categoryNote: action.categoryNote
-		}              
-		default :
+		}     
+        default :
 		return state
 	}
 }
 
-const notes = (state = [], action) => {
+const notes = (state = [], action) => {	
 	switch (action.type) {
 		case "ADD_NOTE" :
 		return [
 			...state,
 			note({}, action)					
 		] 
+		case "REMOVE_NOTE" : 
+		return state.filter(c => c.id != action.id)
 		default:
 		return state
 	}
@@ -201,7 +204,7 @@ const addNote = (text, category) =>
 })
 const removeNote = id =>
 ({
-	type: "REMOVE_COLOR",
+	type: "REMOVE_NOTE",
 	id
 })
 const addTechShowNote = (category, childs) => 
@@ -211,9 +214,9 @@ const addTechShowNote = (category, childs) =>
 	childs
 })
 
-localStorage.clear()
+//localStorage.clear()
 const store = storeFactory() 
-
+sessionStorage.setItem("is_reloaded", true);
 
 const App = ({store}) =>  {	
 	const {menu, notes, techVars} = store.getState()	 
@@ -233,13 +236,13 @@ const App = ({store}) =>  {
 			/>
 		</div>
 		<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" } > 
-				
+				<NoteList notes={notes} techVars={techVars}/>
 				<AddNoteForm techVars={techVars}/>		
 		</div>
 	</div>
 	)		
 }	
-		//////////////////Fns that show, add, remove Notes ///////////////////////
+		//////////////////Component that take input form data and passes it to the Store ///////////////////////
 const AddNoteForm = ({techVars}) => {
 	const {category} = techVars	 
 	let _message
@@ -257,7 +260,7 @@ const AddNoteForm = ({techVars}) => {
 	</form>
 	)
 }
-/////////////Fns that show Menu//////////////////////
+/////////////Components that show Menu//////////////////////
 const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
 	<MenuItem key={menuItem.id} {...menuItem}  
 	onClick={(title, id, level, childs, parentItem)=> 
@@ -270,11 +273,25 @@ const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) =>
 onClick={()=> onClick(title, id, level, childs, parentItem)}>
 <p className="alert alert-primary m-1">{title} </p>
 </div>
-
+///////////////////Conmponents that show Notes//////////////
+const NoteList = ({notes=[], techVars={}, onRemove=f=>f}) => <div> 
+{(notes.length === 0) ? <p>No Notes Listed. (Add a Note)</p> : notes.map(note => 
+			<Note key={note.id} 
+				{...note}  {...techVars} onRemove = {(id)=>store.dispatch(removeNote(id) )}  
+			/>			
+		)		 
+	}
+</div>
+const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => 
+	<div className={ (categoryNote==category || categoryNote=="default" ) ? "show" : "hide" } >					
+	<button className="ml-2 mt-3 close" data-dismiss="toast" aria-label="Close" onClick={()=> onRemove(id)}>X</button><p></p>
+	<div className="toast-body mb-0">{note}</div>
+</div>
   
 
 window.React = React
 window.store = store
+
 const rendering = () => render(
 <App store={store}/>,
 document.getElementById('react-container')

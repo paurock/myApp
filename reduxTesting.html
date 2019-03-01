@@ -153,11 +153,23 @@
 					return (action.childs) ? null : 
 						{
 						showNote: true, 
-						category: action.title
+						category: action.category
 					}
 					default: 
 					return state				
 				}
+			}
+			
+			const setDefault = (state=[], action) => {
+				switch (action.type) {
+					case "SET_INITIAL_STATE" :
+					return {
+							...stateData, 
+							menu: action.menu
+					}
+					default: 
+					return state				
+				}				
 			}
 			
 			/////////////STORE//////////////////////
@@ -175,7 +187,7 @@
 			}		
 			
 			const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
-			combineReducers({menu, notes, techVars}), 
+			combineReducers({menu, notes, techVars, setDefault}), 
 			(localStorage['redux-store']) ?
 			JSON.parse(localStorage['redux-store']) :
 			stateData
@@ -205,12 +217,17 @@
 				type: "REMOVE_COLOR",
 				id
 			})
-			const addTechShowNote = (title, childs) => 
+			const setShowNoteTrue = (title, childs) => 
 			({
 				type: "SET_SHOWNOTE_TRUE",				  
 				title,
 				childs
-			})
+			})		
+			
+			const setInitialState = (menu) => ({
+				type: "SET_INITIAL_STATE", 
+				menu
+				})
 			
 			localStorage.clear()
 			const store = storeFactory() 
@@ -218,8 +235,10 @@
 			
 			const App = ({store}) =>  {				 
 				let title, id, level, childs, parentItem 
+				const {menu} = store.getState()
+				console.log(menu)
 				const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
-				const toggleShowNote=(title, childs)=> store.dispatch(addTechShowNote(title, childs)) 
+				const toggleShowNote=(title, childs)=> store.dispatch(setShowNoteTrue(title, childs)) 
 								
 			  const onClick = (title, id, level, childs, parentItem) => {	
 					showHideMenu (title, level)
@@ -227,28 +246,13 @@
 			  }
 			return (<div>
 				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>	
-				<AddNoteForm store={store} />
+				<button onClick = {()=> onClick(store.dispatch(setInitialState(menu)))}>Set Initial State!</button>
 			</div>)		
 		}	
 		
 		//////////////////Fns that show, add, remove Notes ///////////////////////
-const AddNoteForm = ({store}) => {
-	const {category} = store.getState().techVars 
-	console.log(category) 
-	let _message
-	const submit = e => {	
-		e.preventDefault()
-		store.dispatch( addNote(_message.value, category) )
-		_message.value = ''
-		_message.focus()
-	}
-	return (
-	<form onSubmit={submit}>
-	<textarea className="form-control ml-2 mr-2 " rows="2" ref={input => _message = input}/>
-	<button className="btn btn-dark m-2 ">ADD</button>
-	</form>
-	)
-}
+
+
 window.React = React
 window.store = store
 const rendering = () => render(
