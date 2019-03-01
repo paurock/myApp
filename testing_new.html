@@ -10,7 +10,7 @@
 <script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
 <script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<title>Redux Testing Area</title>
+<title>Testing App with Redux </title>
 <style type='text/css'>
 .hide {
 	display: none 
@@ -108,8 +108,6 @@ const stateData = {
 }
 
 //////////////REDUCERS//////////////////
-
-
 const menu = (state = [], action) => {
 	switch (action.type) {
 		case "SHOW_ITEM_OR_NOT" :
@@ -147,13 +145,17 @@ const notes = (state = [], action) => {
 	}
 }	 
 
-const addTechVars = (state={}, action) => {
+const techVars = (state={}, action) => {
 	switch (action.type) {
 		case "SET_SHOWNOTE_TRUE" :
-		return (action.childs) ? null : 
-		{
+		return (action.childs) ? 
+			{
+			showNote: false, 
+			category: action.category
+				} : 
+			{
 			showNote: true, 
-			category: action.title
+			category: action.category
 		}
 		default: 
 		return state				
@@ -175,12 +177,11 @@ const saver = store => next => action => {
 }		
 
 const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
-combineReducers({menu, notes, addTechVars}), 
+combineReducers({menu, notes, techVars}), 
 (localStorage['redux-store']) ?
 JSON.parse(localStorage['redux-store']) :
 stateData
-) 
-
+)
 /* 
 	
 */
@@ -191,24 +192,22 @@ const setMenuFlag = (title, level) => ({
 	level,
 	title
 })
-
-
-const addNote = (text, title) =>
+const addNote = (text, category) =>
 ({
 	type: "ADD_NOTE",
 	id: v4(),
 	text,
-	categoryNote: title
+	categoryNote: category
 })
 const removeNote = id =>
 ({
 	type: "REMOVE_COLOR",
 	id
 })
-const addTechShowNote = (title, childs) => 
+const addTechShowNote = (category, childs) => 
 ({
 	type: "SET_SHOWNOTE_TRUE",				  
-	title,
+	category,
 	childs
 })
 
@@ -216,8 +215,10 @@ localStorage.clear()
 const store = storeFactory() 
 
 
-const App = () =>  {	
-	let title, id, level, childs, parentItem 
+const App = ({store}) =>  {	
+	const {menu, notes, techVars} = store.getState()	 
+	let title, id, level, childs, parentItem 	
+	
 	const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
 	const toggleShowNote=(title, childs)=> store.dispatch(addTechShowNote(title, childs)) 
 	
@@ -225,18 +226,37 @@ const App = () =>  {
 		showHideMenu (title, level)
 		toggleShowNote(title, childs)				 			
 	}
-	
-	const {menu, notes, techVars} = store.getState()
 	return ( <div className="container-fluid mt-2">
-	<div className="menu-list"> 					 
-	<MenuItemList menu = {menu.filter(item => item.show==true)} 
-	onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
-	/>
-	</div>
+		<div className="menu-list"> 					 
+			<MenuItemList menu = {menu.filter(item => item.show==true)} 
+				onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
+			/>
+		</div>
+		<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" } > 
+				
+				<AddNoteForm techVars={techVars}/>		
+		</div>
 	</div>
 	)		
 }	
-
+		//////////////////Fns that show, add, remove Notes ///////////////////////
+const AddNoteForm = ({techVars}) => {
+	const {category} = techVars	 
+	let _message
+	
+	const submit = e => {	
+		e.preventDefault()
+		store.dispatch( addNote(_message.value, category) )
+		_message.value = ''
+		_message.focus()
+	}
+	return (
+	<form onSubmit={submit}>
+	<textarea className="form-control ml-2 mr-2 " rows="2" ref={input => _message = input}/>
+	<button className="btn btn-dark m-2 ">ADD</button>
+	</form>
+	)
+}
 /////////////Fns that show Menu//////////////////////
 const MenuItemList = ({menu=[], onClick=f=>f}) => <div className="menuItem">{menu.map( menuItem => 
 	<MenuItem key={menuItem.id} {...menuItem}  
@@ -250,6 +270,8 @@ const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) =>
 onClick={()=> onClick(title, id, level, childs, parentItem)}>
 <p className="alert alert-primary m-1">{title} </p>
 </div>
+
+  
 
 window.React = React
 window.store = store

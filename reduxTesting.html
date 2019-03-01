@@ -147,7 +147,7 @@
 				}
 			}	 
 			
-			const addTechVars = (state={}, action) => {
+			const techVars = (state={}, action) => {
 				switch (action.type) {
 					case "SET_SHOWNOTE_TRUE" :
 					return (action.childs) ? null : 
@@ -175,7 +175,7 @@
 			}		
 			
 			const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
-			combineReducers({menu, notes, addTechVars}), 
+			combineReducers({menu, notes, techVars}), 
 			(localStorage['redux-store']) ?
 			JSON.parse(localStorage['redux-store']) :
 			stateData
@@ -193,12 +193,12 @@
 			})
 			
 			
-			const addNote = (text, title) =>
+			const addNote = (text, category) =>
 			({
 				type: "ADD_NOTE",
 				id: v4(),
 				text,
-				categoryNote: title
+				categoryNote: category
 			})
 			const removeNote = id =>
 			({
@@ -216,7 +216,7 @@
 			const store = storeFactory() 
 			
 			
-			const App = () =>  {	
+			const App = ({store}) =>  {				 
 				let title, id, level, childs, parentItem 
 				const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
 				const toggleShowNote=(title, childs)=> store.dispatch(addTechShowNote(title, childs)) 
@@ -226,14 +226,37 @@
 					toggleShowNote(title, childs)				 			
 			  }
 			return (<div>
-				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>			
+				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>	
+				<AddNoteForm store={store} />
 			</div>)		
 		}	
-				
-		render(
-		<App/>,
-		document.getElementById('react-container')
-		) 
+		
+		//////////////////Fns that show, add, remove Notes ///////////////////////
+const AddNoteForm = ({store}) => {
+	const {category} = store.getState().techVars 
+	console.log(category) 
+	let _message
+	const submit = e => {	
+		e.preventDefault()
+		store.dispatch( addNote(_message.value, category) )
+		_message.value = ''
+		_message.focus()
+	}
+	return (
+	<form onSubmit={submit}>
+	<textarea className="form-control ml-2 mr-2 " rows="2" ref={input => _message = input}/>
+	<button className="btn btn-dark m-2 ">ADD</button>
+	</form>
+	)
+}
+window.React = React
+window.store = store
+const rendering = () => render(
+<App store={store}/>,
+document.getElementById('react-container')
+) 
+store.subscribe(rendering)
+rendering()
 	</script>
 </body>
 </html>	
