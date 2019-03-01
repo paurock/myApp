@@ -113,38 +113,46 @@
 			const menu = (state = [], action) => {
 				switch (action.type) {
 					case "SHOW_ITEM_OR_NOT" :
-					return state.map( item=> 
+						return state.map( item=> 
 					(item.level >= action.level-1 && item.parentItem == action.title) ? 
 					{...item, "show": true} :
-					{...item, "show": false} ) 
+					{...item, "show": false} )					
+					case "SET_INITIAL_STATE" :
+					console.log(stateData.menu, "it is menu")
+						return stateData.menu
 					default:
-					return state
+						return state
 				}	
 			}
 			
 			const note = (state = {}, action) => {
 				switch (action.type) {
 					case "ADD_NOTE":
-					return {  
+						return {  
 						note: action.text,
 						id: v4(),					
 						categoryNote: action.categoryNote
-					}              
+					}  
+					case "SET_INITIAL_STATE":					
+						return null
 					default :
-					return state
+						return state
 				}
 			}
 			
 			const notes = (state = [], action) => {
 				switch (action.type) {
 					case "ADD_NOTE" :
-					return [
+						return [
 					...state,
 					note({}, action)					
 					] 
+					case "SET_INITIAL_STATE":	
+					console.log(stateData.notes, "it is notes")
+						return state
 					default:
-					return state
-				}
+						return state
+				}					 
 			}	 
 			
 			const techVars = (state={}, action) => {
@@ -155,21 +163,12 @@
 						showNote: true, 
 						category: action.category
 					}
+					case "SET_INITIAL_STATE": 
+					console.log(stateData.techVars, "it is techVars")
+					return stateData.techVars
 					default: 
 					return state				
 				}
-			}
-			
-			const setDefault = (state=[], action) => {
-				switch (action.type) {
-					case "SET_INITIAL_STATE" :
-					return {
-							...stateData, 
-							menu: action.menu
-					}
-					default: 
-					return state				
-				}				
 			}
 			
 			/////////////STORE//////////////////////
@@ -187,7 +186,7 @@
 			}		
 			
 			const storeFactory= (initialState=stateData) => applyMiddleware(logger, saver)(createStore)(
-			combineReducers({menu, notes, techVars, setDefault}), 
+			combineReducers({menu, notes, techVars}), 
 			(localStorage['redux-store']) ?
 			JSON.parse(localStorage['redux-store']) :
 			stateData
@@ -224,9 +223,8 @@
 				childs
 			})		
 			
-			const setInitialState = (menu) => ({
-				type: "SET_INITIAL_STATE", 
-				menu
+			const setInitialState = () => ({
+				type: "SET_INITIAL_STATE"				
 				})
 			
 			localStorage.clear()
@@ -234,9 +232,7 @@
 			
 			
 			const App = ({store}) =>  {				 
-				let title, id, level, childs, parentItem 
-				const {menu} = store.getState()
-				console.log(menu)
+				let title, id, level, childs, parentItem				 
 				const showHideMenu =(title, level)=> store.dispatch(setMenuFlag(title, level)) 
 				const toggleShowNote=(title, childs)=> store.dispatch(setShowNoteTrue(title, childs)) 
 								
@@ -246,7 +242,7 @@
 			  }
 			return (<div>
 				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>	
-				<button onClick = {()=> onClick(store.dispatch(setInitialState(menu)))}>Set Initial State!</button>
+				<button onClick = {()=> onClick(store.dispatch(setInitialState()))}>Set Initial State!</button>
 			</div>)		
 		}	
 		
