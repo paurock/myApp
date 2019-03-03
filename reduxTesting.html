@@ -27,89 +27,85 @@
 			const {createStore, combineReducers, compose, applyMiddleware } = Redux
 			
 			const stateData = {
-				"menu": [
-				{
-					"title": "Material", 
-					"level": 0,
-					"id": v4(),
-					"parentItem":"Root",
-					"childs": true,
-					"show": true, 
-				}, 
-				{
-					"title": "Spiritual", 
-					"level": 0,
-					"id": v4(),
-					"parentItem":"Root",
-					"childs": true,
-					"show": true 				
-				}, 
-				{
-					"title": "Career", 
-					"level": -1,
-					"id": v4(),
-					"parentItem":"Material",
-					"childs": true,
-					"show": false,				 
-				}, 
-				{
-					"title": "Private Life", 
-					"level": -1,
-					"id": v4(),
-					"parentItem":"Material",	
-					"childs": false,
-					"show": false,				
-				},
-				{
-					"title": "Education", 
-					"level": -2,
-					"id": v4(),
-					"parentItem":"Career",	
-					"childs": false,
-					"show": false,				 
-				}, 
-				{
-					"title": "Work", 
-					"level": -2,
-					"id": v4(),
-					"parentItem":"Career",	
-					"childs": false,
-					"show": false,				 
-				},
-				{
-					"title": "Creativity", 
-					"level": -1,
-					"id": v4(),
-					"parentItem":"Spiritual",
-					"childs": true,
-					"show": false,				 
-				}, 
-				{
-					"title": "Vlog", 
-					"level": -2,
-					"id": v4(),
-					"parentItem":"Creativity",		
-					"childs": false,
-					"show": false,				 
-				}, 		
-				], 
-				"notes": [
-				{
-					"note": "Here you can write your notes!",
-					"id": "1",
-					"categoryNote": "default"
-				}
-				],
-				"techVars": 
-				{
-					"showNote": false, 
-					"category": null
-				}		
-			}
-			
-			//////////////REDUCERS//////////////////
-			
-			
+  "menu": [
+    {
+      "title": "Material",
+      "level": 0,
+      "id": 0,
+      "parentItem": "Root",
+      "childs": true,
+      "show": true
+    },
+    {
+      "title": "Spiritual",
+      "level": 0,
+      "id": 1,
+      "parentItem": "Root",
+      "childs": true,
+      "show": true
+    },
+    {
+      "title": "Career",
+      "level": -1,
+      "id": 2,
+      "parentItem": "Material",
+      "childs": true,
+      "show": false
+    },
+    {
+      "title": "Private Life",
+      "level": -1,
+      "id": 3,
+      "parentItem": "Material",
+      "childs": false,
+      "show": false
+    },
+    {
+      "title": "Education",
+      "level": -2,
+      "id": 4,
+      "parentItem": "Career",
+      "childs": false,
+      "show": false
+    },
+    {
+      "title": "Work",
+      "level": -2,
+      "id": 5,
+      "parentItem": "Career",
+      "childs": false,
+      "show": false
+    },
+    {
+      "title": "Creativity",
+      "level": -1,
+      "id": 6,
+      "parentItem": "Spiritual",
+      "childs": true,
+      "show": false
+    },
+    {
+      "title": "Vlog",
+      "level": -2,
+      "id": 7,
+      "parentItem": "Creativity",
+      "childs": false,
+      "show": false
+    }
+  ],
+  "notes": [
+    {
+      "note": "Here you can write your notes!",
+      "id": 10,
+      "categoryNote": "default"
+    }
+  ],
+  "techVars": {
+    "showNote": false,
+    "category": null
+  }
+}			
+			//////////////REDUCERS//////////////////			
 			const menu = (state = [], action) => {
 				switch (action.type) {
 					case "SHOW_ITEM_OR_NOT" :
@@ -117,9 +113,8 @@
 					(item.level >= action.level-1 && item.parentItem == action.title) ? 
 					{...item, "show": true} :
 					{...item, "show": false} )					
-					case "SET_INITIAL_STATE" :
-					console.log(stateData.menu, "it is menu")
-						return stateData.menu
+					case "SET_INITIAL_STATE" :					 
+					return getInitialState().menu
 					default:
 						return state
 				}	
@@ -147,8 +142,7 @@
 					...state,
 					note({}, action)					
 					] 
-					case "SET_INITIAL_STATE":	
-					console.log(stateData.notes, "it is notes")
+					case "SET_INITIAL_STATE":						
 						return state
 					default:
 						return state
@@ -163,9 +157,8 @@
 						showNote: true, 
 						category: action.category
 					}
-					case "SET_INITIAL_STATE": 
-					console.log(stateData.techVars, "it is techVars")
-					return stateData.techVars
+					case "SET_INITIAL_STATE":						
+					return getInitialState().techVars
 					default: 
 					return state				
 				}
@@ -173,7 +166,7 @@
 			
 			/////////////STORE//////////////////////
 			const logger = store => next => action => {
-				let result				 			 
+				let result			
 				result = next(action)
 				console.log('next state', store.getState())				 
 				return result
@@ -191,18 +184,20 @@
 			JSON.parse(localStorage['redux-store']) :
 			stateData
 			) 
-			
+			localStorage.clear()
+			const store = storeFactory() 
 			/* 
 				
 			*/
 			
 			////////action creators////////
+			const getInitialState = () => stateData			
+			
 			const setMenuFlag = (title, level) => ({	 
 				type: "SHOW_ITEM_OR_NOT",				
 				level,
 				title
-			})
-			
+			})			
 			
 			const addNote = (text, category) =>
 			({
@@ -225,11 +220,8 @@
 			
 			const setInitialState = () => ({
 				type: "SET_INITIAL_STATE"				
-				})
-			
-			localStorage.clear()
-			const store = storeFactory() 
-			
+				})			
+					
 			
 			const App = ({store}) =>  {				 
 				let title, id, level, childs, parentItem				 
@@ -242,7 +234,7 @@
 			  }
 			return (<div>
 				<button onClick = {()=> onClick("Career", null, -1, true,  "Material" )}>Dispatch it!</button>	
-				<button onClick = {()=> onClick(store.dispatch(setInitialState()))}>Set Initial State!</button>
+				<button onClick = {()=> store.dispatch(setInitialState())}>Set Initial State!</button>
 			</div>)		
 		}	
 		
