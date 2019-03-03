@@ -114,7 +114,7 @@
 					{...item, "show": true} :
 					{...item, "show": false} )					
 					case "SET_INITIAL_STATE" :					 
-					return getInitialState().menu
+					return getInitialState("menu")
 					default:
 						return state
 				}	
@@ -158,7 +158,7 @@
 						category: action.category
 					}
 					case "SET_INITIAL_STATE":						
-					return getInitialState().techVars
+					return getInitialState("techVars")
 					default: 
 					return state				
 				}
@@ -191,8 +191,8 @@
 			*/
 			
 			////////action creators////////
-			const getInitialState = () => stateData			
-			
+			const getInitialState = (key) => stateData[key]			
+			 
 			const setMenuFlag = (title, level) => ({	 
 				type: "SHOW_ITEM_OR_NOT",				
 				level,
