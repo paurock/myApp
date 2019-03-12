@@ -11,6 +11,20 @@
 <script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <title>Strong Typed Notepad</title>
+<style type='text/css'>
+.menuItem p {	
+cursor:pointer;
+	border-radius: 0.5rem;
+}
+.form-control {
+	border-radius: 0.5rem;	
+}
+.toast-body {
+	background: #cce5ff;
+	border-radius: 0.5rem;	
+}
+
+</style>
 </head>
 <body>
 <div id="react-container"></div>
@@ -244,7 +258,7 @@ const App = ({store}) =>  {
 			<div className="menu-list">  				 
 				<MenuItemList menu = {menu.filter(item => item.show==true)} 
 				onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
-			/>
+			    />
 			</div>}
 	
 	{(techVars.showNotes) ? <div className="note-list"  > 
@@ -266,8 +280,8 @@ const AddNoteForm = ({techVars}) => {
 	}
 	return (
 	<form onSubmit={submit}>
-	<textarea className="form-control ml-2 mr-2 " rows="2" ref={input => _message = input}/>
-	<button className="btn btn-dark m-2 ">ADD</button>
+	<textarea className="form-control mr-2 mt-2" rows="2" ref={input => _message = input}/>
+	<button className="btn btn-dark mt-2 ">ADD</button>
 	</form>
 	)
 }
@@ -320,8 +334,8 @@ NoteList.propTypes = {
 const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => {
 	return (categoryNote==category || categoryNote=="default" ) ?	
 	<div>
-	<button className="ml-2 mt-3 close" data-dismiss="toast" aria-label="Close" onClick={()=> onRemove(id)}>X</button><p></p>
-	<div className="toast-body mb-0">{note}</div> 
+	<button className="ml-2 mr-2 close" data-dismiss="toast" aria-label="Close" onClick={()=> onRemove(id)}>x</button><p></p>
+	<div className="toast-body mb-0 p-2">{note}</div> 
 	</div> : 
 	null
 	}
