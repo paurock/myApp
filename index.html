@@ -11,11 +11,6 @@
 <script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <title>Strong Typed Notepad</title>
-<style type='text/css'>
-.hide {
-	display: none 
-}
-</style>
 </head>
 <body>
 <div id="react-container"></div>
@@ -102,7 +97,7 @@ const stateData = {
 		}
 	],
 	"techVars": {
-		"showNote": false,
+		"showNotes": false,
 		"category": null
 	}
 }
@@ -160,16 +155,16 @@ const techVars = (state={}, action) => {
 		case "SET_SHOWNOTE_TRUE" :
 		return (action.childs) ? 
 		{
-			showNote: false, 
+			showNotes: false, 
 			category: action.category
 		} : 
 		{
-			showNote: true, 
+			showNotes: true, 
 			category: action.category
 		}
 		case "SET_INITIAL_STATE" : 
 		return {
-			showNote: false,
+			showNotes: false,
 			category: null
 		}
 		default: 
@@ -243,18 +238,20 @@ const App = ({store}) =>  {
 		showHideMenu (title, level)
 		toggleShowNote(title, childs)				 			
 	}
-	return ( <div className="container-fluid mt-2">
-	<div className="menu-list"> 					 
-	<MenuItemList menu = {menu.filter(item => item.show==true)} 
-	onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
-	/>
-	</div>
-	<div className="note-list" className={ (techVars.showNote) ? "show" : "hide" } > 
-	<NoteList notes={notes} techVars={techVars}/>
-	<AddNoteForm techVars={techVars}/>		
-	</div>
-	</div>
-	)		
+	return ( <div className="container-fluid mt-2"> { 
+		(menu.filter(item=> item.show ==true).length === 0) ? 
+			null :
+			<div className="menu-list">  				 
+				<MenuItemList menu = {menu.filter(item => item.show==true)} 
+				onClick={(title, id, level, childs, parentItem)=> onClick(title, id, level, childs, parentItem)}
+			/>
+			</div>}
+	
+	{(techVars.showNotes) ? <div className="note-list"  > 
+		<NoteList notes={notes} techVars={techVars}/>
+		<AddNoteForm techVars={techVars}/>		
+	</div> : null }
+	</div>)		
 }	
 //////////////////Component that take input form data and passes it to the Store ///////////////////////
 const AddNoteForm = ({techVars}) => {
@@ -294,9 +291,8 @@ MenuItemList.propTypes = {
 
 
 const MenuItem = ({title, id, level, show, childs, parentItem, onClick=f=>f}) => 
-<div className={(show) ? "show" : "hide"} 
-onClick={()=> onClick(title, id, level, childs, parentItem)}>
-<p className="alert alert-primary m-1">{title} </p>
+<div onClick={()=> onClick(title, id, level, childs, parentItem)}>
+<p className="alert alert-primary m-1">{ show ? title : null} </p>
 </div>
 MenuItem.propTypes = {
 	title: PropTypes.string,
@@ -321,29 +317,33 @@ NoteList.propTypes = {
     techVars: PropTypes.object, 
 	onRemove: PropTypes.func	
 }
-const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => 
-<div className={ (categoryNote==category || categoryNote=="default" ) ? "show" : "hide" } >					
-<button className="ml-2 mt-3 close" data-dismiss="toast" aria-label="Close" onClick={()=> onRemove(id)}>X</button><p></p>
-<div className="toast-body mb-0">{note}</div>
-</div>
-Note.propTypes = {
-	note: PropTypes.string, 
-	id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),  
-	categoryNote: PropTypes.string, 
-	category: PropTypes.string,
-	onRemove: PropTypes.func	
-}
-
-window.React = React
-window.store = store
-
-const rendering = () => render(
-<App store={store}/>,
-document.getElementById('react-container')
-) 
-store.subscribe(rendering)
-rendering()
-document.body.onload = store.dispatch(setInitialState())
-</script>
-</body>
-</html>	
+const Note = ({note, id, categoryNote, category, onRemove=f=>f}) => {
+	return (categoryNote==category || categoryNote=="default" ) ?	
+	<div>
+	<button className="ml-2 mt-3 close" data-dismiss="toast" aria-label="Close" onClick={()=> onRemove(id)}>X</button><p></p>
+	<div className="toast-body mb-0">{note}</div> 
+	</div> : 
+	null
+	}
+	
+	Note.propTypes = {
+		note: PropTypes.string, 
+		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),  
+		categoryNote: PropTypes.string, 
+		category: PropTypes.string,
+		onRemove: PropTypes.func	
+	}
+	
+	window.React = React
+	window.store = store
+	
+	const rendering = () => render(
+	<App store={store}/>,
+	document.getElementById('react-container')
+	) 
+	store.subscribe(rendering)
+	rendering()
+	document.body.onload = store.dispatch(setInitialState())
+	</script>
+	</body>
+	</html>		
